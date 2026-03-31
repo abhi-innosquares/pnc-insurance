@@ -41,11 +41,10 @@ function formatAssistantContent(content) {
     .replace(/\r/g, '')
     .replace(/^\s*```(?:json)?\s*$/gim, '')
     .replace(/^[\s\u2500\u2501\u2502\u2014\u2015\-_=]{4,}$/gm, '')
-    .replace(/\s+(COMPOSITE\s+RISK\s+ASSESSMENT\b)/gi, '\n$1')
-    .replace(/\s+(ASSESSMENT\b)/gi, '\n$1')
+    .replace(/\bCOMPOSITE\s+RISK\s+ASSESSMENT\b/gi, '\nComposite Risk Assessment')
     .replace(/\s+(▶\s*DISPOSITION\s*:)/gi, '\n$1')
     .replace(/\s+(DISPOSITION\s*:)/gi, '\n$1')
-    .replace(/\s+(Composite\s+Fraud\s+Risk\s*\(CFRS\)\s*:)/gi, '\n$1')
+    .replace(/\bComposite\s+Fraud\s+Risk\s+Score\s*\(CFRS\)\s*:/gi, '\nComposite Fraud Risk Score (CFRS):')
     .replace(/\s+(CFRS\s*=)/gi, '\n$1')
     .replace(/\s+(Override\s+check\s*:)/gi, '\n$1')
     .replace(/[ \t]*\n[ \t]*/g, '\n')
@@ -57,6 +56,7 @@ function formatAssistantContent(content) {
     .filter(Boolean);
 
   const markdownLines = [];
+  let justAddedCompositeRiskAssessment = false;
 
   for (const line of lines) {
     const cleaned = line
@@ -71,12 +71,17 @@ function formatAssistantContent(content) {
       continue;
     }
 
-    if (/^composite risk$/i.test(cleaned)) {
-      markdownLines.push('### Composite Risk');
+    if (/^composite risk$/i.test(cleaned) || /^composite risk assessment$/i.test(cleaned)) {
+      markdownLines.push('### Composite Risk Assessment');
+      justAddedCompositeRiskAssessment = true;
       continue;
     }
 
     if (/^assessment\b/i.test(cleaned) || /^composite\s+risk\s+assessment\b/i.test(cleaned)) {
+      if (justAddedCompositeRiskAssessment) {
+        justAddedCompositeRiskAssessment = false;
+        continue;
+      }
       const ccrsMatch = cleaned.match(/ccrs\s*:\s*([0-9.]+)/i);
       if (ccrsMatch) {
         markdownLines.push(`### Assessment (CCRS: ${ccrsMatch[1]})`);
@@ -96,6 +101,7 @@ function formatAssistantContent(content) {
       for (const metric of metrics) {
         markdownLines.push(`- ${metric}`);
       }
+      justAddedCompositeRiskAssessment = false;
       continue;
     }
 
@@ -117,10 +123,12 @@ function formatAssistantContent(content) {
 
     if (/^▶\s*/.test(cleaned) || /^disposition\s*:/i.test(cleaned)) {
       markdownLines.push(`### ${cleaned.replace(/^▶\s*/, '')}`);
+      justAddedCompositeRiskAssessment = false;
       continue;
     }
 
     markdownLines.push(cleaned);
+    justAddedCompositeRiskAssessment = false;
   }
 
   const summary = markdownLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
