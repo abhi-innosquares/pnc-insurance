@@ -93,12 +93,18 @@ function formatAssistantContent(content) {
 
     if (/^ccrs\s*:/i.test(cleaned)) {
       const metricsMatch = cleaned.match(
-        /CCRS\s*:\s*([0-9.]+).*?BARS\s*:\s*([0-9.]+).*?FARS\s*:\s*([0-9.]+).*?ECRS\s*:\s*([0-9.]+)/i
+        /CCRS\s*:\s*([0-9.]+)\s*\|\s*BARS\s*:\s*([0-9.]+)\s*\|\s*FARS\s*:\s*([0-9.]+)\s*\|\s*ECRS\s*:\s*([0-9.]+)\s*(.*)$/i
       );
 
-      const cfrsScoreMatch = cleaned.match(/Composite\s+Fraud\s+Risk\s+Score\s*\(CFRS\)\s*:\s*([0-9.]+)/i);
-      const equationMatch = cleaned.match(/CFRS\s*=\s*(.+?)(?=\s+Override\s+check\s*:|$)/i);
-      const overrideMatch = cleaned.match(/Override\s+check\s*:\s*(.+)$/i);
+      const remainder = metricsMatch ? (metricsMatch[5] || '').trim() : cleaned;
+      const normalizedRemainder = remainder.replace(
+        /^Composite\s+Fraud\s+Risk\s+Score\s*\(CFRS\)\s*:\s*Composite\s+Fraud\s+Risk\s+Score\s*\(CFRS\)\s*:/i,
+        'Composite Fraud Risk Score (CFRS):'
+      );
+
+      const cfrsScoreMatch = normalizedRemainder.match(/Composite\s+Fraud\s+Risk\s+Score\s*\(CFRS\)\s*:\s*([0-9.]+)/i);
+      const equationMatch = normalizedRemainder.match(/CFRS\s*=\s*(.+?)(?=\s+Override\s+check\s*:|$)/i);
+      const overrideMatch = normalizedRemainder.match(/Override\s+check\s*:\s*(.+)$/i);
 
       const formattedLines = [];
 
@@ -113,6 +119,10 @@ function formatAssistantContent(content) {
       formattedLines.push('');
       formattedLines.push('Composite Fraud Risk Score (CFRS):');
 
+      if (cfrsScoreMatch) {
+        formattedLines.push(`= ${cfrsScoreMatch[1]}`);
+      }
+
       if (equationMatch) {
         const eqParts = equationMatch[1]
           .split(/\s*=\s*/)
@@ -122,13 +132,11 @@ function formatAssistantContent(content) {
         for (const part of eqParts) {
           formattedLines.push(`= ${part}`);
         }
-      } else if (cfrsScoreMatch) {
-        formattedLines.push(`= ${cfrsScoreMatch[1]}`);
       }
 
       formattedLines.push('');
       if (overrideMatch) {
-        formattedLines.push(overrideMatch[1]);
+        formattedLines.push(`Override check: ${overrideMatch[1]}`);
       }
 
       const compositeBlock = formattedLines
