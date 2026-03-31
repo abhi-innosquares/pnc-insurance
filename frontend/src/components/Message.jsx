@@ -9,15 +9,27 @@ function formatAssistantContent(content) {
   const text = content.trim();
   if (!text) return text;
 
-  const jsonStart = text.indexOf('\n{') >= 0 ? text.indexOf('\n{') + 1 : text.indexOf('{');
-  const hasJsonTail = jsonStart >= 0 && (text.slice(jsonStart).trim().startsWith('{') || text.slice(jsonStart).trim().startsWith('['));
+  const fencedJsonMatch = text.match(/```(?:json)?\s*\n[\s\S]*$/i);
+  const braceStart = text.indexOf('\n{') >= 0 ? text.indexOf('\n{') + 1 : text.indexOf('{');
 
-  if (!hasJsonTail) {
-    return text;
+  let summaryRaw = '';
+  let jsonRaw = '';
+
+  if (fencedJsonMatch && typeof fencedJsonMatch.index === 'number') {
+    summaryRaw = text.slice(0, fencedJsonMatch.index).trim();
+    jsonRaw = fencedJsonMatch[0];
+  } else {
+    const hasJsonTail =
+      braceStart >= 0 &&
+      (text.slice(braceStart).trim().startsWith('{') || text.slice(braceStart).trim().startsWith('['));
+
+    if (!hasJsonTail) {
+      return text;
+    }
+
+    summaryRaw = text.slice(0, braceStart).trim();
+    jsonRaw = text.slice(braceStart).trim();
   }
-
-  const summaryRaw = text.slice(0, jsonStart).trim();
-  let jsonRaw = text.slice(jsonStart).trim();
 
   // Normalize JSON tail if upstream output already includes fenced markdown.
   jsonRaw = jsonRaw
@@ -27,11 +39,13 @@ function formatAssistantContent(content) {
 
   const normalized = summaryRaw
     .replace(/\r/g, '')
+    .replace(/^\s*```(?:json)?\s*$/gim, '')
     .replace(/^[\s\u2500\u2501\u2502\u2014\u2015\-_=]{4,}$/gm, '')
     .replace(/\s+(COMPOSITE\s+RISK\s+ASSESSMENT\b)/gi, '\n$1')
     .replace(/\s+(ASSESSMENT\b)/gi, '\n$1')
     .replace(/\s+(▶\s*DISPOSITION\s*:)/gi, '\n$1')
     .replace(/\s+(DISPOSITION\s*:)/gi, '\n$1')
+    .replace(/\s+(Composite\s+Fraud\s+Risk\s*\(CFRS\)\s*:)/gi, '\n$1')
     .replace(/\s+(CFRS\s*=)/gi, '\n$1')
     .replace(/\s+(Override\s+check\s*:)/gi, '\n$1')
     .replace(/[ \t]*\n[ \t]*/g, '\n')
