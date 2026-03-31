@@ -91,6 +91,27 @@ function formatAssistantContent(content) {
       continue;
     }
 
+    if (/^ccrs\s*:/i.test(cleaned)) {
+      const expanded = cleaned
+        .replace(/\s*\|\s*/g, '\n')
+        .replace(/\s+(Composite\s+Fraud\s+Risk\s+Score\s*\(CFRS\)\s*:)/gi, '\n$1')
+        .replace(/\s+(CFRS\s*=)/gi, '\n$1')
+        .replace(/\s+(Override\s+check\s*:)/gi, '\n$1')
+        .replace(/\s+(No\s+individual\s+score\s+exceeds\b)/gi, '\n$1');
+
+      const metrics = expanded
+        .split('\n')
+        .map(part => part.trim())
+        .filter(Boolean);
+
+      markdownLines.push('#### Metrics');
+      for (const metric of metrics) {
+        markdownLines.push(`- ${metric}`);
+      }
+      justAddedCompositeRiskAssessment = false;
+      continue;
+    }
+
     if ((/^\|?\s*bars\s*:/i.test(cleaned) || /\|/.test(cleaned)) && /(ccrs|bars|fars|ecrs|cfrs)\s*:/i.test(cleaned)) {
       const metrics = cleaned
         .replace(/^\|\s*/, '')
