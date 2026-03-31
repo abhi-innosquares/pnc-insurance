@@ -17,11 +17,23 @@ function formatAssistantContent(content) {
   }
 
   const summaryRaw = text.slice(0, jsonStart).trim();
-  const jsonRaw = text.slice(jsonStart).trim();
+  let jsonRaw = text.slice(jsonStart).trim();
+
+  // Normalize JSON tail if upstream output already includes fenced markdown.
+  jsonRaw = jsonRaw
+    .replace(/^\s*```(?:json)?\s*\n?/i, '')
+    .replace(/\n?```\s*$/i, '')
+    .trim();
 
   const normalized = summaryRaw
     .replace(/\r/g, '')
     .replace(/^[\s\u2500\u2501\u2502\u2014\u2015\-_=]{4,}$/gm, '')
+    .replace(/\s+(COMPOSITE\s+RISK\s+ASSESSMENT\b)/gi, '\n$1')
+    .replace(/\s+(ASSESSMENT\b)/gi, '\n$1')
+    .replace(/\s+(▶\s*DISPOSITION\s*:)/gi, '\n$1')
+    .replace(/\s+(DISPOSITION\s*:)/gi, '\n$1')
+    .replace(/\s+(CFRS\s*=)/gi, '\n$1')
+    .replace(/\s+(Override\s+check\s*:)/gi, '\n$1')
     .replace(/[ \t]*\n[ \t]*/g, '\n')
     .trim();
 
@@ -50,7 +62,7 @@ function formatAssistantContent(content) {
       continue;
     }
 
-    if (/^assessment\b/i.test(cleaned)) {
+    if (/^assessment\b/i.test(cleaned) || /^composite\s+risk\s+assessment\b/i.test(cleaned)) {
       const ccrsMatch = cleaned.match(/ccrs\s*:\s*([0-9.]+)/i);
       if (ccrsMatch) {
         markdownLines.push(`### Assessment (CCRS: ${ccrsMatch[1]})`);
@@ -60,8 +72,12 @@ function formatAssistantContent(content) {
       continue;
     }
 
-    if (/^\|?\s*bars\s*:/i.test(cleaned)) {
-      const metrics = cleaned.replace(/^\|\s*/, '').split('|').map(s => s.trim()).filter(Boolean);
+    if ((/^\|?\s*bars\s*:/i.test(cleaned) || /\|/.test(cleaned)) && /(ccrs|bars|fars|ecrs|cfrs)\s*:/i.test(cleaned)) {
+      const metrics = cleaned
+        .replace(/^\|\s*/, '')
+        .split('|')
+        .map(s => s.trim())
+        .filter(Boolean);
       markdownLines.push('#### Metrics');
       for (const metric of metrics) {
         markdownLines.push(`- ${metric}`);
