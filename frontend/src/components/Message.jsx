@@ -99,7 +99,17 @@ function formatAssistantContent(content) {
         .filter(Boolean);
       markdownLines.push('#### Metrics');
       for (const metric of metrics) {
-        markdownLines.push(`- ${metric}`);
+        const expandedMetrics = metric
+          .replace(/\bComposite\s+Fraud\s+Risk\s+Score\s*\(CFRS\)\s*:/gi, '\nComposite Fraud Risk Score (CFRS):')
+          .replace(/\s+(CFRS\s*=)/gi, '\n$1')
+          .replace(/\s+(Override\s+check\s*:)/gi, '\n$1')
+          .split('\n')
+          .map(part => part.trim())
+          .filter(Boolean);
+
+        for (const part of expandedMetrics) {
+          markdownLines.push(`- ${part}`);
+        }
       }
       justAddedCompositeRiskAssessment = false;
       continue;
