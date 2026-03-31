@@ -92,22 +92,52 @@ function formatAssistantContent(content) {
     }
 
     if (/^ccrs\s*:/i.test(cleaned)) {
-      const expanded = cleaned
-        .replace(/\s*\|\s*/g, '\n')
-        .replace(/\s+(Composite\s+Fraud\s+Risk\s+Score\s*\(CFRS\)\s*:)/gi, '\n$1')
-        .replace(/\s+(CFRS\s*=)/gi, '\n$1')
-        .replace(/\s+(Override\s+check\s*:)/gi, '\n$1')
-        .replace(/\s+(No\s+individual\s+score\s+exceeds\b)/gi, '\n$1');
+      const metricsMatch = cleaned.match(
+        /CCRS\s*:\s*([0-9.]+).*?BARS\s*:\s*([0-9.]+).*?FARS\s*:\s*([0-9.]+).*?ECRS\s*:\s*([0-9.]+)/i
+      );
 
-      const metrics = expanded
-        .split('\n')
-        .map(part => part.trim())
-        .filter(Boolean);
+      const cfrsScoreMatch = cleaned.match(/Composite\s+Fraud\s+Risk\s+Score\s*\(CFRS\)\s*:\s*([0-9.]+)/i);
+      const equationMatch = cleaned.match(/CFRS\s*=\s*(.+?)(?=\s+Override\s+check\s*:|$)/i);
+      const overrideMatch = cleaned.match(/Override\s+check\s*:\s*(.+)$/i);
 
-      markdownLines.push('#### Metrics');
-      for (const metric of metrics) {
-        markdownLines.push(`- ${metric}`);
+      const formattedLines = [];
+
+      if (metricsMatch) {
+        formattedLines.push(
+          `CCRS: ${metricsMatch[1]}  │  BARS: ${metricsMatch[2]}  │  FARS: ${metricsMatch[3]}  │  ECRS: ${metricsMatch[4]}`
+        );
+      } else {
+        formattedLines.push(cleaned);
       }
+
+      formattedLines.push('');
+      formattedLines.push('Composite Fraud Risk Score (CFRS):');
+
+      if (equationMatch) {
+        const eqParts = equationMatch[1]
+          .split(/\s*=\s*/)
+          .map(part => part.trim())
+          .filter(Boolean);
+
+        for (const part of eqParts) {
+          formattedLines.push(`= ${part}`);
+        }
+      } else if (cfrsScoreMatch) {
+        formattedLines.push(`= ${cfrsScoreMatch[1]}`);
+      }
+
+      formattedLines.push('');
+      if (overrideMatch) {
+        formattedLines.push(overrideMatch[1]);
+      }
+
+      const compositeBlock = formattedLines
+        .filter((line, index, arr) => !(line === '' && arr[index - 1] === ''))
+        .map(line => (line ? `${line}  ` : ''))
+        .join('\n')
+        .trim();
+
+      markdownLines.push(compositeBlock);
       justAddedCompositeRiskAssessment = false;
       continue;
     }
