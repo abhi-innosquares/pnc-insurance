@@ -99,7 +99,7 @@ function JourneyPanel({ journeyData = [], onDeleteJourney = async () => {} }) {
               </div>
               {selectedIndex === idx && (
                 <div className="journey-preview">
-                  <p><strong>Risk Score:</strong> {journey.composite_fraud_risk_score?.toFixed(3) || 'N/A'}</p>
+                  <p><strong>Risk Score:</strong> {(journey.decision_inputs?.composite_fraud_risk_score ?? journey.composite_fraud_risk_score)?.toFixed(3) || 'N/A'}</p>
                   <p><strong>Claims:</strong> {journey.decision_inputs?.claim_count || 'N/A'}</p>
                 </div>
               )}
