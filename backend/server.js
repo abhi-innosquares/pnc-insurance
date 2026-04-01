@@ -805,6 +805,7 @@ async function executeClaudeQuery(sessionId, userQuery, outputBuffer) {
   console.log(`${"*".repeat(80)}\n`);
 
   console.log(` [${sessionId.substring(0, 15)}] About to spawn command...`);
+  session.progress = "Launching Claude process...";
   console.log(` [${sessionId.substring(0, 15)}]   Command: claude`);
   console.log(
     ` [${sessionId.substring(
@@ -917,6 +918,7 @@ async function executeClaudeQuery(sessionId, userQuery, outputBuffer) {
       combinedInput.length
     } bytes total)...`
   );
+  session.progress = "Sending prompt and customer query...";
   console.log(
     ` [${sessionId.substring(0, 15)}] Prompt: ${
       preloadedPromptContent.length
@@ -958,6 +960,7 @@ async function executeClaudeQuery(sessionId, userQuery, outputBuffer) {
     
     console.log(`\n  ${sessionId.substring(0, 15)}] Sent ${combinedInput.length} bytes to Claude`);
     console.log(`   Waiting for Claude's response...\n`);
+    session.progress = "Waiting for Claude response...";
   } catch (err) {
     console.error(
       `❌ [${sessionId.substring(0, 15)}] Error sending input: ${err.message}`
@@ -986,6 +989,10 @@ async function executeClaudeQuery(sessionId, userQuery, outputBuffer) {
     outputChunkCount++;
     const chunk = data.toString();
     output += chunk;
+
+    if (outputChunkCount === 1 && session.status === "running") {
+      session.progress = "Receiving analysis output...";
+    }
 
     // Log full output for debugging
     console.log(`\n${"=".repeat(80)}`);
@@ -1221,6 +1228,16 @@ function parseAndUpdateProgress(session, chunk) {
     session.progress = "Delegating to worker agents...";
   } else if (chunk.includes("mcp__zaimler-ntt-ins-pc__agent_chat")) {
     session.progress = "Querying Zaimler database...";
+  } else if (chunk.includes("Explorer query")) {
+    session.progress = "Running Explorer query...";
+  } else if (chunk.includes("Template:")) {
+    session.progress = "Running template query...";
+  } else if (chunk.includes("Response received")) {
+    session.progress = "Processing retrieved data...";
+  } else if (chunk.includes("Assembling orchestration")) {
+    session.progress = "Preparing orchestration...";
+  } else if (chunk.includes("Connecting to Zaimler knowledge graph")) {
+    session.progress = "Connecting to knowledge graph...";
   }
 
   // Log progress changes
