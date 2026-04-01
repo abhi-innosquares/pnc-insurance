@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import ChatInterface from './components/ChatInterface';
 import JourneyPanel from './components/JourneyPanel';
+import AgentMapPanel from './components/AgentMapPanel';
 import './App.css';
 
 const API_BASE = '/api';
@@ -130,6 +131,14 @@ function App() {
           <span className="left-nav-sub">Past decisions</span>
         </button>
         <button
+          className={`left-nav-item ${activeTab === 'map' ? 'active' : ''}`}
+          onClick={() => setActiveTab('map')}
+          type="button"
+        >
+          <span className="left-nav-title">Agent Map</span>
+          <span className="left-nav-sub">Connection flow</span>
+        </button>
+        <button
           className={`left-nav-item ${showIntel ? 'active' : ''}`}
           onClick={() => setShowIntel(prev => !prev)}
           type="button"
@@ -214,6 +223,13 @@ function App() {
               <div style={{ padding: '20px', textAlign: 'center' }}>Loading analysis history...</div>
             ) : (
               <JourneyPanel journeyData={journeyData} onDeleteJourney={deleteJourney} />
+            )}
+          </div>
+          <div className={`tab-panel ${activeTab === 'map' ? 'active' : 'hidden'}`}>
+            {loading ? (
+              <div style={{ padding: '20px', textAlign: 'center' }}>Loading journey map...</div>
+            ) : (
+              <AgentMapPanel journeyData={journeyData} />
             )}
           </div>
         </div>

@@ -72,42 +72,6 @@ function JourneyPanel({ journeyData = [], onDeleteJourney = async () => {} }) {
     return 'rgba(186, 199, 227, 0.5)';
   };
 
-  const journeyStageOrder = [
-    { key: 'Customer Context', code: 'CC' },
-    { key: 'Claim Timeline', code: 'CT' },
-    { key: 'Financial Anomaly', code: 'FA' },
-    { key: 'Evidence Consistency', code: 'EC' },
-    { key: 'Final Disposition', code: 'FD' }
-  ];
-
-  const getStationStatus = (stations = {}, stationKey) => {
-    if (stations[stationKey]) return stations[stationKey];
-
-    const matchKey = Object.keys(stations).find(
-      key => key.toLowerCase() === stationKey.toLowerCase()
-    );
-    return matchKey ? stations[matchKey] : 'pending';
-  };
-
-  const getStageState = (status) => {
-    const normalized = String(status || '').toLowerCase();
-    if (normalized === 'executed' || normalized === 'completed') return 'done';
-    if (normalized === 'skipped') return 'skipped';
-    if (normalized === 'error' || normalized === 'failed') return 'error';
-    return 'pending';
-  };
-
-  const journeyMapStages = selectedJourney
-    ? journeyStageOrder.map(stage => {
-        const rawStatus = getStationStatus(selectedJourney.stations || {}, stage.key);
-        return {
-          ...stage,
-          rawStatus,
-          state: getStageState(rawStatus)
-        };
-      })
-    : [];
-
   return (
     <div className="journey-panel">
       <div className="journey-list">
@@ -225,26 +189,6 @@ function JourneyPanel({ journeyData = [], onDeleteJourney = async () => {} }) {
                       <span>{station}</span>
                       <span className="status-text">{status}</span>
                     </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {selectedJourney.stations && (
-              <section className="detail-section">
-                <h4>Journey Map</h4>
-                <div className="journey-map" role="list" aria-label="Journey map stages">
-                  {journeyMapStages.map((stage, idx) => (
-                    <React.Fragment key={stage.key}>
-                      <div className={`journey-map-node ${stage.state}`} role="listitem" title={`${stage.key}: ${stage.rawStatus}`}>
-                        <span className="journey-map-code">{stage.code}</span>
-                        <span className="journey-map-label">{stage.key}</span>
-                        <span className="journey-map-status">{stage.rawStatus}</span>
-                      </div>
-                      {idx < journeyMapStages.length - 1 && (
-                        <div className={`journey-map-link ${stage.state === 'done' ? 'active' : ''}`} aria-hidden="true" />
-                      )}
-                    </React.Fragment>
                   ))}
                 </div>
               </section>
