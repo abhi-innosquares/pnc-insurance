@@ -1,8 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { exec } from "child_process";
-import { spawn } from "child_process";
+import { execSync, spawn } from "child_process";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -20,6 +19,25 @@ const CLAUDE_TIMEOUT = parseInt(process.env.CLAUDE_TIMEOUT || "1200000"); // 20 
 const USE_PNC_SCRIPT = process.env.USE_PNC_SCRIPT === "1";
 const PNC_SCRIPT_PATH = process.env.PNC_SCRIPT_PATH || "run_pnc_process.sh";
 const VERBOSE_LOGGING = process.env.VERBOSE_LOGGING !== "0";
+const BOOT_TIMESTAMP = Date.now();
+
+function resolveBuildVersion() {
+  if (process.env.APP_BUILD_VERSION && process.env.APP_BUILD_VERSION.trim()) {
+    return process.env.APP_BUILD_VERSION.trim();
+  }
+
+  try {
+    return execSync("git rev-parse --short HEAD", {
+      cwd: path.resolve(__dirname, "..", ".."),
+      stdio: ["ignore", "pipe", "ignore"],
+      encoding: "utf8",
+    }).trim();
+  } catch (_error) {
+    return "unknown";
+  }
+}
+
+const BUILD_VERSION = resolveBuildVersion();
 
 function normalizeWorkspacePath(workspacePath) {
   if (!workspacePath) {
@@ -582,6 +600,20 @@ app.get("/api/health", async (req, res) => {
     claudeReady: claudeInitialized,
     promptReady: !!preloadedPromptContent,
     error: claudeInitError || promptLoadError || null,
+    buildVersion: BUILD_VERSION,
+    bootTimestamp: BOOT_TIMESTAMP,
+    timestamp: Date.now(),
+  });
+});
+
+/**
+ * GET /api/version
+ * Lightweight deployment fingerprint endpoint
+ */
+app.get("/api/version", (req, res) => {
+  res.json({
+    buildVersion: BUILD_VERSION,
+    bootTimestamp: BOOT_TIMESTAMP,
     timestamp: Date.now(),
   });
 });

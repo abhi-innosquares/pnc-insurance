@@ -28,6 +28,7 @@ function App() {
       return 'dark';
     }
   });
+  const [buildInfo, setBuildInfo] = useState('Build: ...');
 
   // Persist activeTab to localStorage whenever it changes
   useEffect(() => {
@@ -62,6 +63,21 @@ function App() {
     };
     
     fetchJourneys();
+  }, []);
+
+  useEffect(() => {
+    const fetchVersion = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/version`);
+        const version = response?.data?.buildVersion || 'unknown';
+        setBuildInfo(`Build: ${version}`);
+      } catch (error) {
+        console.warn('Failed to load build version:', error);
+        setBuildInfo('Build: unavailable');
+      }
+    };
+
+    fetchVersion();
   }, []);
 
   // Function to refresh journey data (called when new journey is added)
@@ -129,6 +145,9 @@ function App() {
           />
           <div className="header-content">
             <h1>PNC Fraud Intelligence Console</h1>
+          </div>
+          <div className="header-status-chip" title="Backend build fingerprint">
+            {buildInfo}
           </div>
           <button
             type="button"
