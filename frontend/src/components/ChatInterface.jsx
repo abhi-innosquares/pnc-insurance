@@ -184,6 +184,7 @@ function ChatInterface({ onJourneyUpdate = () => {} }) {
     // Check if EventSource is available (for SSE streaming)
     if (typeof EventSource !== 'undefined') {
       const es = new EventSource(`${API_BASE}/session/${newSessionId}/stream`);
+      let switchedToPolling = false;
 
       es.onmessage = (event) => {
         const data = JSON.parse(event.data);
@@ -192,6 +193,20 @@ function ChatInterface({ onJourneyUpdate = () => {} }) {
           case 'init':
             console.log('Stream initialized:', data.session);
             setSessionStatus(data.session);
+            setMessages(prev => {
+              if (prev.length === 0) return prev;
+
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              if (last.type === 'assistant' && last.isStreaming) {
+                updated[updated.length - 1] = {
+                  ...last,
+                  content: buildDisplayOutput(data.session.output, data.session.progress || last.content),
+                  progress: deriveLiveProgress(data.session.output, data.session.progress || 'Processing...')
+                };
+              }
+              return updated;
+            });
             break;
           case 'update':
             setSessionStatus(data.session);
@@ -251,7 +266,12 @@ function ChatInterface({ onJourneyUpdate = () => {} }) {
         console.error('Stream error:', error);
         es.close();
         setEventSource(null);
-        setIsLoading(false);
+
+        // EventSource may report an error for transient disconnects; keep tracking via polling.
+        if (!switchedToPolling) {
+          switchedToPolling = true;
+          pollForUpdates(newSessionId);
+        }
       };
 
       setEventSource(es);
