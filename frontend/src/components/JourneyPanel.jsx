@@ -72,6 +72,23 @@ function JourneyPanel({ journeyData = [], onDeleteJourney = async () => {} }) {
     return 'rgba(186, 199, 227, 0.5)';
   };
 
+  const extractDateFromRunId = (runId) => {
+    if (!runId) return null;
+    // Extract YYYYMMDD pattern from run_id
+    const match = runId.match(/(\d{8})/);
+    if (!match) return null;
+    const dateStr = match[1];
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const day = dateStr.substring(6, 8);
+    try {
+      const date = new Date(`${year}-${month}-${day}`);
+      return date.toLocaleDateString();
+    } catch {
+      return null;
+    }
+  };
+
   return (
     <div className="journey-panel">
       <div className="journey-list">
@@ -86,9 +103,11 @@ function JourneyPanel({ journeyData = [], onDeleteJourney = async () => {} }) {
               <div className="journey-header">
                 <div className="journey-title">
                   <h3>{journey.customer_name || 'Unknown'}</h3>
-                  <span className="journey-date">
-                    {journey.timestamp ? new Date(journey.timestamp).toLocaleDateString() : 'N/A'}
-                  </span>
+                  {extractDateFromRunId(journey.run_id) && (
+                    <span className="journey-date">
+                      {extractDateFromRunId(journey.run_id)}
+                    </span>
+                  )}
                 </div>
                 <div 
                   className="disposition-badge"
