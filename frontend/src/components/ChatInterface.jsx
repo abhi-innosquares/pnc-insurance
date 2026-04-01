@@ -156,10 +156,12 @@ function ChatInterface({ onJourneyUpdate = () => {} }) {
               const updated = [...prev];
               const last = updated[updated.length - 1];
               if (last.type === 'assistant' && last.isStreaming) {
+                const finished = data.session.status === 'completed' || data.session.status === 'error';
                 updated[updated.length - 1] = {
                   ...last,
                   content: buildDisplayOutput(data.session.output, data.session.progress),
-                  progress: data.session.progress
+                  progress: finished ? undefined : data.session.progress,
+                  isStreaming: !finished
                 };
               }
               return updated;
@@ -178,6 +180,19 @@ function ChatInterface({ onJourneyUpdate = () => {} }) {
             es.close();
             setEventSource(null);
             setIsLoading(false);
+            setMessages(prev => {
+              if (prev.length === 0) return prev;
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              if (last.type === 'assistant' && last.isStreaming) {
+                updated[updated.length - 1] = {
+                  ...last,
+                  isStreaming: false,
+                  progress: undefined
+                };
+              }
+              return updated;
+            });
             break;
           default:
             break;
@@ -212,10 +227,12 @@ function ChatInterface({ onJourneyUpdate = () => {} }) {
           const updated = [...prev];
           const last = updated[updated.length - 1];
           if (last.type === 'assistant' && last.isStreaming) {
+            const finished = session.status === 'completed' || session.status === 'error';
             updated[updated.length - 1] = {
               ...last,
               content: buildDisplayOutput(session.output, session.progress),
-              progress: session.progress
+              progress: finished ? undefined : session.progress,
+              isStreaming: !finished
             };
           }
           return updated;
