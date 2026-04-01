@@ -60,11 +60,12 @@ function getNodeTheme(status) {
 }
 
 function AgentMapPanel({ journeyData = [] }) {
-  const latestJourney = Array.isArray(journeyData) && journeyData.length > 0
-    ? journeyData[journeyData.length - 1]
-    : null;
+  const [selectedJourneyIndex, setSelectedJourneyIndex] = React.useState(
+    Array.isArray(journeyData) && journeyData.length > 0 ? journeyData.length - 1 : -1
+  );
 
-  const stations = latestJourney?.stations || {};
+  const selectedJourney = journeyData[selectedJourneyIndex] || null;
+  const stations = selectedJourney?.stations || {};
 
   const flow = useMemo(() => {
     const nodes = stationOrder.map((name) => {
@@ -120,7 +121,7 @@ function AgentMapPanel({ journeyData = [] }) {
     return { nodes, edges };
   }, [stations]);
 
-  if (!latestJourney) {
+  if (!journeyData || journeyData.length === 0) {
     return (
       <div className="agent-map-panel">
         <div className="agent-map-empty">
@@ -134,8 +135,21 @@ function AgentMapPanel({ journeyData = [] }) {
   return (
     <div className="agent-map-panel">
       <div className="agent-map-header">
-        <h2>Agent Journey Map</h2>
-        <p>Latest case: {latestJourney.customer_name || 'Unknown customer'}</p>
+        <div className="agent-map-title-row">
+          <h2>Agent Journey Map</h2>
+          <select 
+            value={selectedJourneyIndex} 
+            onChange={(e) => setSelectedJourneyIndex(Number(e.target.value))}
+            className="journey-selector"
+          >
+            {journeyData.map((journey, idx) => (
+              <option key={idx} value={idx}>
+                {journey.customer_name || 'Unknown'} (Run {idx + 1})
+              </option>
+            ))}
+          </select>
+        </div>
+        <p>Case: {selectedJourney?.customer_name || 'Unknown customer'}</p>
       </div>
       <div className="agent-map-canvas">
         <ReactFlow

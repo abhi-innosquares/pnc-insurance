@@ -14,16 +14,52 @@
   padding: 10px 12px;
 }
 
+.agent-map-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .agent-map-header h2 {
   margin: 0;
   font-size: 16px;
   color: var(--primary);
+  flex: 1;
 }
 
 .agent-map-header p {
   margin: 6px 0 0;
   font-size: 12px;
   color: var(--text-soft);
+}
+
+.journey-selector {
+  padding: 6px 10px;
+  border: 1px solid rgba(186, 199, 227, 0.3);
+  border-radius: 6px;
+  background: rgba(3, 20, 39, 0.6);
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.journey-selector:hover {
+  border-color: rgba(79, 219, 200, 0.5);
+}
+
+.journey-selector:focus {
+  outline: none;
+  border-color: rgba(79, 219, 200, 0.8);
+  box-shadow: 0 0 0 2px rgba(79, 219, 200, 0.1);
+}
+
+[data-theme='light'] .journey-selector {
+  background: rgba(240, 245, 250, 0.8);
+  color: var(--text);
+  border-color: rgba(143, 165, 198, 0.3);
 }
 
 .agent-map-canvas {
@@ -95,4 +131,66 @@
 [data-theme='light'] .agent-map-empty {
   background: rgba(255, 255, 255, 0.9);
   border-color: rgba(143, 165, 198, 0.35);
+}
+
+[data-theme='light'] .map-node-title {
+  color: #1a3a52 !important;
+}
+
+[data-theme='light'] .map-node-status {
+  color: #555 !important;
+}
+
+[data-theme='light'] .map-node-status.completed {
+  color: #0d9488 !important;
+}
+
+[data-theme='light'] .map-node-status.skipped {
+  color: #d97706 !important;
+}
+
+[data-theme='light'] .map-node-status.error {
+  color: #dc2626 !important;
+}
+
+[data-theme='light'] .map-node-status.pending {
+  color: #6b7280 !important;
+}
+
+/* React Flow Controls styling */
+.react-flow__controls {
+  background: rgba(16, 32, 52, 0.72) !important;
+  border: 1px solid rgba(186, 199, 227, 0.18) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.react-flow__controls-button {
+  background: rgba(3, 20, 39, 0.8) !important;
+  border: 1px solid rgba(79, 219, 200, 0.3) !important;
+  color: #4fdbc8 !important;
+  font-size: 18px !important;
+  padding: 8px !important;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(3, 20, 39, 1) !important;
+  border-color: rgba(79, 219, 200, 0.6) !important;
+}
+
+[data-theme='light'] .react-flow__controls {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(143, 165, 198, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-theme='light'] .react-flow__controls-button {
+  background: rgba(240, 245, 250, 0.9) !important;
+  border-color: rgba(143, 165, 198, 0.4) !important;
+  color: #0d9488 !important;
+}
+
+[data-theme='light'] .react-flow__controls-button:hover {
+  background: rgba(230, 240, 250, 1) !important;
+  border-color: rgba(143, 165, 198, 0.6) !important;
 }
