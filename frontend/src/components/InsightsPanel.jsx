@@ -350,24 +350,38 @@ function InsightsPanel({ journeyData = [] }) {
 
       <div className="insights-row agent-row">
         <h3>Agent Execution Status</h3>
-        <div className="agent-status-grid">
+        <div className="agent-status-list">
           {Object.entries(insights.agentStatus).map(([agentName, stats]) => {
             const totalRuns = stats.executed + stats.skipped + stats.error;
+            const executedPct = totalRuns > 0 ? (stats.executed / totalRuns) * 100 : 0;
+            const skippedPct = totalRuns > 0 ? (stats.skipped / totalRuns) * 100 : 0;
+            const errorPct = totalRuns > 0 ? (stats.error / totalRuns) * 100 : 0;
             return (
-              <div key={agentName} className="agent-card">
-                <div className="agent-name">{agentName}</div>
-                <div className="agent-bars">
-                  <div className="agent-bar-item executed" title={`Executed: ${stats.executed}`}>
-                    <div className="agent-bar" style={{ width: totalRuns > 0 ? `${(stats.executed / totalRuns) * 100}%` : '0%' }} />
-                    <span className="agent-count">{stats.executed}</span>
+              <div key={agentName} className="agent-status-row">
+                <div className="agent-status-header">
+                  <span className="agent-name">{agentName}</span>
+                  <span className="agent-total">Total Runs: {totalRuns}</span>
+                </div>
+                <div className="agent-composite-bar" role="img" aria-label={`${agentName} execution status`}>
+                  <div className="agent-segment executed" style={{ width: `${executedPct}%` }} title={`Executed: ${stats.executed} (${executedPct.toFixed(1)}%)`} />
+                  <div className="agent-segment skipped" style={{ width: `${skippedPct}%` }} title={`Skipped: ${stats.skipped} (${skippedPct.toFixed(1)}%)`} />
+                  <div className="agent-segment error" style={{ width: `${errorPct}%` }} title={`Error: ${stats.error} (${errorPct.toFixed(1)}%)`} />
+                </div>
+                <div className="agent-metrics">
+                  <div className="agent-metric executed">
+                    <span>Executed</span>
+                    <strong>{stats.executed}</strong>
+                    <em>{executedPct.toFixed(1)}%</em>
                   </div>
-                  <div className="agent-bar-item skipped" title={`Skipped: ${stats.skipped}`}>
-                    <div className="agent-bar" style={{ width: totalRuns > 0 ? `${(stats.skipped / totalRuns) * 100}%` : '0%' }} />
-                    <span className="agent-count">{stats.skipped}</span>
+                  <div className="agent-metric skipped">
+                    <span>Skipped</span>
+                    <strong>{stats.skipped}</strong>
+                    <em>{skippedPct.toFixed(1)}%</em>
                   </div>
-                  <div className="agent-bar-item error" title={`Error: ${stats.error}`}>
-                    <div className="agent-bar" style={{ width: totalRuns > 0 ? `${(stats.error / totalRuns) * 100}%` : '0%' }} />
-                    <span className="agent-count">{stats.error}</span>
+                  <div className="agent-metric error">
+                    <span>Error</span>
+                    <strong>{stats.error}</strong>
+                    <em>{errorPct.toFixed(1)}%</em>
                   </div>
                 </div>
               </div>
