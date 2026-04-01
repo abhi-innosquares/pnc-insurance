@@ -85,6 +85,19 @@
   gap: 16px;
 }
 
+.analytics-row {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.alignment-row {
+  width: 100%;
+}
+
+.full-width-chart {
+  width: 100%;
+}
+
 .insights-chart {
   flex: 1;
   min-width: 280px;
@@ -198,6 +211,120 @@
 .risk-count {
   color: var(--primary);
   font-weight: 600;
+}
+
+.component-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.component-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.component-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.component-avg {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.component-bar-track {
+  height: 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(186, 199, 227, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.component-bar-fill {
+  height: 100%;
+  transition: width 0.25s ease;
+}
+
+.component-footnote {
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-cell {
+  border: 1px solid rgba(186, 199, 227, 0.14);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(3, 20, 39, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-cell span {
+  font-size: 11px;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-cell strong {
+  font-size: 18px;
+  color: var(--primary);
+}
+
+.alignment-summary {
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.alignment-table {
+  border: 1px solid rgba(186, 199, 227, 0.14);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.alignment-table-head,
+.alignment-table-row {
+  display: grid;
+  grid-template-columns: 1.7fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.alignment-table-head {
+  background: rgba(3, 20, 39, 0.6);
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.alignment-table-row {
+  border-top: 1px solid rgba(186, 199, 227, 0.09);
+}
+
+.alignment-table-row.match {
+  background: rgba(79, 219, 200, 0.06);
+}
+
+.alignment-table-row.mismatch {
+  background: rgba(209, 112, 122, 0.12);
 }
 
 /* Bottom Row: Agent Status */
@@ -319,6 +446,33 @@
   background: #ff8a80;
 }
 
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .alignment-table-head,
+  .alignment-table-row {
+    grid-template-columns: 1.6fr 0.8fr 0.9fr 0.8fr 0.8fr 0.8fr;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 820px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .alignment-table {
+    overflow-x: auto;
+  }
+
+  .alignment-table-head,
+  .alignment-table-row {
+    min-width: 680px;
+  }
+}
+
 /* Light Mode */
 [data-theme='light'] .insights-chart,
 [data-theme='light'] .metric-card,
@@ -362,7 +516,20 @@
   color: #666;
 }
 
+[data-theme='light'] .component-header,
+[data-theme='light'] .component-footnote,
+[data-theme='light'] .alignment-summary,
+[data-theme='light'] .stat-cell span,
+[data-theme='light'] .alignment-table-head {
+  color: #5f7287;
+}
+
 [data-theme='light'] .risk-count {
+  color: #0d9488;
+}
+
+[data-theme='light'] .component-avg,
+[data-theme='light'] .stat-cell strong {
   color: #0d9488;
 }
 
@@ -371,4 +538,24 @@
 [data-theme='light'] .agent-bar-item {
   background: rgba(200, 220, 240, 0.5);
   border-color: rgba(143, 165, 198, 0.2);
+}
+
+[data-theme='light'] .component-bar-track,
+[data-theme='light'] .stat-cell,
+[data-theme='light'] .alignment-table,
+[data-theme='light'] .alignment-table-row {
+  border-color: rgba(143, 165, 198, 0.25);
+}
+
+[data-theme='light'] .stat-cell,
+[data-theme='light'] .alignment-table-head {
+  background: rgba(235, 244, 252, 0.85);
+}
+
+[data-theme='light'] .alignment-table-row.match {
+  background: rgba(79, 219, 200, 0.1);
+}
+
+[data-theme='light'] .alignment-table-row.mismatch {
+  background: rgba(209, 112, 122, 0.14);
 }
