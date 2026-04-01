@@ -21,6 +21,53 @@ function buildDisplayOutput(output = [], fallback = 'Processing...') {
   return text.trim().length > 0 ? text : fallback;
 }
 
+function stripAnsi(value = '') {
+  return value.replace(/\u001b\[[0-9;]*m/g, '');
+}
+
+function deriveLiveProgress(output = [], fallback = 'Processing...') {
+  if (!Array.isArray(output) || output.length === 0) {
+    return fallback;
+  }
+
+  for (let i = output.length - 1; i >= 0; i -= 1) {
+    const item = output[i];
+    if (!item || typeof item.content !== 'string') continue;
+
+    const lines = item.content
+      .split(/\r?\n/)
+      .map(line => stripAnsi(line).trim())
+      .filter(Boolean)
+      .reverse();
+
+    for (const line of lines) {
+      if (/^[=+!#*\-]{4,}$/.test(line)) continue;
+      if (/^```/.test(line)) continue;
+      if (/^[\[{\]}",]/.test(line)) continue;
+
+      if (line.includes('mcp__zaimler-ntt-ins-pc__agent_chat') || /Explorer query/i.test(line)) {
+        return 'Running graph query...';
+      }
+
+      if (line.includes('mcp__zaimler-ntt-ins-pc__execute_template') || /Template:/i.test(line)) {
+        return 'Running template query...';
+      }
+
+      if (/Response received|data rows/i.test(line)) {
+        return 'Received data, preparing assessment...';
+      }
+
+      if (/EXECUTION_STATE|Finalizing/i.test(line)) {
+        return 'Finalizing results...';
+      }
+
+      return line.length > 120 ? `${line.slice(0, 117)}...` : line;
+    }
+  }
+
+  return fallback;
+}
+
 function ChatInterface({ onJourneyUpdate = () => {} }) {
   const [messages, setMessages] = useState(() => {
     try {
@@ -157,10 +204,11 @@ function ChatInterface({ onJourneyUpdate = () => {} }) {
               const last = updated[updated.length - 1];
               if (last.type === 'assistant' && last.isStreaming) {
                 const finished = data.session.status === 'completed' || data.session.status === 'error';
+                const liveProgress = deriveLiveProgress(data.session.output, data.session.progress || 'Processing...');
                 updated[updated.length - 1] = {
                   ...last,
                   content: buildDisplayOutput(data.session.output, data.session.progress),
-                  progress: finished ? undefined : data.session.progress,
+                  progress: finished ? undefined : liveProgress,
                   isStreaming: !finished
                 };
               }
@@ -228,10 +276,11 @@ function ChatInterface({ onJourneyUpdate = () => {} }) {
           const last = updated[updated.length - 1];
           if (last.type === 'assistant' && last.isStreaming) {
             const finished = session.status === 'completed' || session.status === 'error';
+            const liveProgress = deriveLiveProgress(session.output, session.progress || 'Processing...');
             updated[updated.length - 1] = {
               ...last,
               content: buildDisplayOutput(session.output, session.progress),
-              progress: finished ? undefined : session.progress,
+              progress: finished ? undefined : liveProgress,
               isStreaming: !finished
             };
           }
