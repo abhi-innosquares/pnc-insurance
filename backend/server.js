@@ -838,7 +838,7 @@ async function executeClaudeQuery(sessionId, userQuery, outputBuffer) {
         "claude",
         [
           "--allowed-tools",
-          "mcp__zaimler-ntt-ins-pc__set_workspace,mcp__zaimler-ntt-ins-pc__agent_chat",
+          "mcp__zaimler-ntt-ins-pc__set_workspace,mcp__zaimler-ntt-ins-pc__agent_chat,mcp__zaimler-ntt-ins-pc__execute_template",
         ],
         {
           name: "xterm-color",
@@ -866,7 +866,7 @@ async function executeClaudeQuery(sessionId, userQuery, outputBuffer) {
       "claude",
       [
         "--allowed-tools",
-        "mcp__zaimler-ntt-ins-pc__set_workspace,mcp__zaimler-ntt-ins-pc__agent_chat",
+        "mcp__zaimler-ntt-ins-pc__set_workspace,mcp__zaimler-ntt-ins-pc__agent_chat,mcp__zaimler-ntt-ins-pc__execute_template",
       ],
       {
         cwd: path.isAbsolute(CLAUDE_WORKSPACE)
