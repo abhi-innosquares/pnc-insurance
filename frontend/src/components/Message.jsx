@@ -203,7 +203,22 @@ function formatAssistantContent(content) {
   const summary = markdownLines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
   const summaryBlock = summary || summaryRaw;
 
-  return `${summaryBlock}\n\n\`\`\`json\n${jsonRaw}\n\`\`\``;
+  // Ensure JSON is always properly fenced with language marker
+  let jsonBlock = jsonRaw;
+  if (!jsonBlock.startsWith('```')) {
+    jsonBlock = `\`\`\`json\n${jsonBlock}\n\`\`\``;
+  } else if (!jsonBlock.includes('json')) {
+    // If fenced but missing json marker, add it
+    jsonBlock = jsonBlock.replace(/^\`\`\`/, '```json');
+  }
+
+  // Add visual separator and error highlighting if disposition is ERROR
+  const isErrorDisposition = summaryBlock.includes('DISPOSITION: ERROR');
+  if (isErrorDisposition) {
+    return `> **⚠️ Error Processing Request**\n\n${summaryBlock}\n\n---\n\n**Raw Response Data:**\n\n${jsonBlock}`;
+  }
+
+  return `${summaryBlock}\n\n---\n\n**Response Data:**\n\n${jsonBlock}`;
 }
 
 function Message({ message }) {
