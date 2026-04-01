@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ChatInterface from './components/ChatInterface';
 import JourneyPanel from './components/JourneyPanel';
 import AgentMapPanel from './components/AgentMapPanel';
+import InsightsPanel from './components/InsightsPanel';
 import './App.css';
 
 const API_BASE = '/api';
@@ -19,8 +20,6 @@ function App() {
   });
   const [journeyData, setJourneyData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [now, setNow] = useState(Date.now());
-  const [showIntel, setShowIntel] = useState(false);
   const [theme, setTheme] = useState(() => {
     try {
       const saved = localStorage.getItem('pncTheme');
@@ -29,36 +28,6 @@ function App() {
       return 'dark';
     }
   });
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const intelStats = useMemo(() => {
-    const journeys = Array.isArray(journeyData) ? journeyData : [];
-    const totalCases = journeys.length;
-    const escalated = journeys.filter(j => {
-      const d = (j?.final_disposition || '').toLowerCase();
-      return d.includes('investigate') || d.includes('escalate');
-    }).length;
-    const avgRisk = journeys.length
-      ? journeys.reduce((sum, j) => {
-          const score =
-            j?.decision_inputs?.composite_fraud_risk_score ??
-            j?.composite_fraud_risk_score ??
-            0;
-          return sum + Number(score || 0);
-        }, 0) / journeys.length
-      : 0;
-
-    return {
-      totalCases,
-      escalated,
-      avgRisk,
-      lastUpdated: new Date(now).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    };
-  }, [journeyData, now]);
 
   // Persist activeTab to localStorage whenever it changes
   useEffect(() => {
@@ -139,12 +108,12 @@ function App() {
           <span className="left-nav-sub">Connection flow</span>
         </button>
         <button
-          className={`left-nav-item ${showIntel ? 'active' : ''}`}
-          onClick={() => setShowIntel(prev => !prev)}
+          className={`left-nav-item ${activeTab === 'insights' ? 'active' : ''}`}
+          onClick={() => setActiveTab('insights')}
           type="button"
         >
           <span className="left-nav-title">Insights</span>
-          <span className="left-nav-sub">{showIntel ? 'Visible' : 'Hidden'}</span>
+          <span className="left-nav-sub">Dashboard</span>
         </button>
       </aside>
 
@@ -192,27 +161,6 @@ function App() {
             )}
           </button>
         </div>
-
-        {showIntel && (
-          <div className="intel-strip">
-            <div className="intel-card">
-              <span className="intel-label">Cases Reviewed</span>
-              <span className="intel-value">{intelStats.totalCases}</span>
-            </div>
-            <div className="intel-card alert">
-              <span className="intel-label">High Priority Cases</span>
-              <span className="intel-value">{intelStats.escalated}</span>
-            </div>
-            <div className="intel-card">
-              <span className="intel-label">Average Risk Index</span>
-              <span className="intel-value">{intelStats.avgRisk.toFixed(3)}</span>
-            </div>
-            <div className="intel-card info">
-              <span className="intel-label">Last Refresh</span>
-              <span className="intel-value">{intelStats.lastUpdated}</span>
-            </div>
-          </div>
-        )}
         
         <div className="tabs-content">
           <div className={`tab-panel ${activeTab === 'query' ? 'active' : 'hidden'}`}>
@@ -230,6 +178,13 @@ function App() {
               <div style={{ padding: '20px', textAlign: 'center' }}>Loading journey map...</div>
             ) : (
               <AgentMapPanel journeyData={journeyData} />
+            )}
+          </div>
+          <div className={`tab-panel ${activeTab === 'insights' ? 'active' : 'hidden'}`}>
+            {loading ? (
+              <div style={{ padding: '20px', textAlign: 'center' }}>Loading insights dashboard...</div>
+            ) : (
+              <InsightsPanel journeyData={journeyData} />
             )}
           </div>
         </div>

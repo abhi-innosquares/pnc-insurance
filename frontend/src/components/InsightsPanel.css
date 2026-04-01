@@ -1,0 +1,374 @@
+.insights-panel {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  overflow-y: auto;
+  background: transparent;
+}
+
+.insights-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid rgba(186, 199, 227, 0.18);
+  border-radius: 12px;
+  background: rgba(16, 32, 52, 0.72);
+}
+
+.insights-empty h2 {
+  margin: 0;
+  color: var(--primary);
+}
+
+.insights-empty p {
+  margin: 8px 0 0;
+  color: var(--text-soft);
+}
+
+.insights-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Top Row: Metrics */
+.metrics-row {
+  justify-content: space-between;
+}
+
+.metric-card {
+  flex: 1;
+  min-width: 160px;
+  padding: 16px;
+  border: 1px solid rgba(186, 199, 227, 0.18);
+  border-radius: 12px;
+  background: rgba(16, 32, 52, 0.72);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-card.alert {
+  border-color: rgba(255, 138, 128, 0.4);
+  background: rgba(179, 38, 30, 0.15);
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.metric-card.alert .metric-value {
+  color: #ff8a80;
+}
+
+.metric-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+/* Middle Row: Charts */
+.charts-row {
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.insights-chart {
+  flex: 1;
+  min-width: 280px;
+  padding: 16px;
+  border: 1px solid rgba(186, 199, 227, 0.18);
+  border-radius: 12px;
+  background: rgba(16, 32, 52, 0.72);
+}
+
+.insights-chart h3 {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* Disposition Bars */
+.disposition-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bar-label {
+  font-size: 12px;
+  color: var(--text-soft);
+  font-weight: 500;
+}
+
+.bar-container {
+  height: 28px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(186, 199, 227, 0.1);
+}
+
+.bar-fill {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  transition: width 0.3s ease;
+  min-width: fit-content;
+}
+
+.bar-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+}
+
+/* Risk Distribution */
+.risk-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.risk-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.risk-bar-container {
+  height: 24px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(186, 199, 227, 0.1);
+}
+
+.risk-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.risk-item.low .risk-bar {
+  background: #4fdbc8;
+}
+
+.risk-item.medium .risk-bar {
+  background: #ffb347;
+}
+
+.risk-item.high .risk-bar {
+  background: #ff8a80;
+}
+
+.risk-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.risk-label span:first-child {
+  color: var(--text-soft);
+}
+
+.risk-count {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Bottom Row: Agent Status */
+.agent-row {
+  width: 100%;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid rgba(186, 199, 227, 0.18);
+  border-radius: 12px;
+  background: rgba(16, 32, 52, 0.72);
+}
+
+.agent-row h3 {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.agent-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.agent-card {
+  padding: 12px;
+  border: 1px solid rgba(186, 199, 227, 0.1);
+  border-radius: 8px;
+  background: rgba(3, 20, 39, 0.5);
+}
+
+.agent-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.agent-bar-item {
+  height: 18px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  padding: 0 4px;
+  gap: 4px;
+  border: 1px solid rgba(186, 199, 227, 0.08);
+}
+
+.agent-bar {
+  min-height: 100%;
+  transition: width 0.3s ease;
+}
+
+.agent-bar-item.executed .agent-bar {
+  background: #4fdbc8;
+}
+
+.agent-bar-item.skipped .agent-bar {
+  background: #ffb347;
+}
+
+.agent-bar-item.error .agent-bar {
+  background: #ff8a80;
+}
+
+.agent-count {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  margin-left: auto;
+}
+
+.agent-legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(186, 199, 227, 0.1);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legend-color.executed {
+  background: #4fdbc8;
+}
+
+.legend-color.skipped {
+  background: #ffb347;
+}
+
+.legend-color.error {
+  background: #ff8a80;
+}
+
+/* Light Mode */
+[data-theme='light'] .insights-chart,
+[data-theme='light'] .metric-card,
+[data-theme='light'] .insights-empty,
+[data-theme='light'] .agent-row,
+[data-theme='light'] .agent-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(143, 165, 198, 0.35);
+}
+
+[data-theme='light'] .agent-card {
+  background: rgba(240, 245, 250, 0.8);
+  border-color: rgba(143, 165, 198, 0.25);
+}
+
+[data-theme='light'] .insights-chart h3,
+[data-theme='light'] .agent-row h3 {
+  color: #0d9488;
+}
+
+[data-theme='light'] .metric-value {
+  color: #0d9488;
+}
+
+[data-theme='light'] .metric-card.alert {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+[data-theme='light'] .metric-card.alert .metric-value {
+  color: #dc2626;
+}
+
+[data-theme='light'] .agent-name {
+  color: #1a3a52;
+}
+
+[data-theme='light'] .bar-label,
+[data-theme='light'] .risk-label span:first-child,
+[data-theme='light'] .agent-legend {
+  color: #666;
+}
+
+[data-theme='light'] .risk-count {
+  color: #0d9488;
+}
+
+[data-theme='light'] .bar-container,
+[data-theme='light'] .risk-bar-container,
+[data-theme='light'] .agent-bar-item {
+  background: rgba(200, 220, 240, 0.5);
+  border-color: rgba(143, 165, 198, 0.2);
+}
